@@ -5,22 +5,33 @@ struct SettingsView: View {
     @State private var downloadError: String?
 
     var body: some View {
-        List {
-            privacySection
-            engineSection
-            modelsSection
-            if let downloadError {
-                Section {
-                    Text(downloadError)
-                        .foregroundStyle(VNTheme.danger)
-                        .font(.footnote)
+        ScrollViewReader { proxy in
+            List {
+                privacySection
+                engineSection
+                modelsSection
+                if let downloadError {
+                    Section {
+                        Text(downloadError)
+                            .foregroundStyle(VNTheme.danger)
+                            .font(.footnote)
+                    }
+                }
+                aboutSection
+                    .id("settings-about")
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("设置")
+            .navigationBarTitleDisplayMode(.large)
+            .onAppear {
+                guard ProcessInfo.processInfo.arguments.contains("-ScrollSettingsFooter") else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    withAnimation {
+                        proxy.scrollTo("settings-about", anchor: .bottom)
+                    }
                 }
             }
-            aboutSection
         }
-        .listStyle(.insetGrouped)
-        .navigationTitle("设置")
-        .navigationBarTitleDisplayMode(.large)
     }
 
     // MARK: - Sections
