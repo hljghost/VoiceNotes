@@ -11,7 +11,7 @@ settings:
     SWIFT_VERSION: "5.10"
     TARGETED_DEVICE_FAMILY: "1"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    DEVELOPMENT_TEAM: L2BPSFX5Y2
+    DEVELOPMENT_TEAM: 4M6375V4X6
     CODE_SIGN_STYLE: Automatic
 packages:
   sherpa-onnx:
@@ -30,7 +30,7 @@ targets:
           - "**/.DS_Store"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.voicenotes.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.lingyou.voicenotes
         INFOPLIST_FILE: VoiceNotes/Resources/Info.plist
         GENERATE_INFOPLIST_FILE: false
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

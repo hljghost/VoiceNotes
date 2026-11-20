@@ -263,7 +263,7 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					6234070C6E4926258461B945 = {
-						DevelopmentTeam = L2BPSFX5Y2;
+						DevelopmentTeam = 4M6375V4X6;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -371,7 +371,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = L2BPSFX5Y2;
+				DEVELOPMENT_TEAM = 4M6375V4X6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -415,7 +415,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "$(inherited) -lc++";
-				PRODUCT_BUNDLE_IDENTIFIER = com.voicenotes.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lingyou.voicenotes;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -458,7 +458,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = L2BPSFX5Y2;
+				DEVELOPMENT_TEAM = 4M6375V4X6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -495,7 +495,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "$(inherited) -lc++";
-				PRODUCT_BUNDLE_IDENTIFIER = com.voicenotes.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lingyou.voicenotes;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
