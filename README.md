@@ -38,7 +38,10 @@ SPM：`sherpa-onnx` 2.0.2 · `mlx-swift-lm` 2.31.3（含 mlx-swift / swift-trans
 |--|-----|-----|
 | 目录 | `Models/ASR/sensevoice-small/` | `Models/LLM/qwen2.5-0.5b-instruct/` |
 | 主文件 | `model.int8.onnx` + `tokens.txt` | `model.safetensors` + tokenizer* |
-| 来源 | GitHub asr-models / HF csukuangfj | HF `mlx-community/Qwen2.5-0.5B-Instruct-4bit` |
+| 大陆镜像 | **ModelScope** 多仓库（主：`pengzhendong/sherpa-onnx-sense-voice-zh-en-ja-ko-yue`，备：`chriscrs/…-int8-2024-07-17` 等）；校验 SHA-256 | **ModelScope** `mlx-community/Qwen2.5-0.5B-Instruct-4bit`（`resolve/master`）；校验各文件 SHA-256 |
+| 上游内容 | sherpa-onnx SenseVoice Small int8 | 与 HF 同权重（ModelScope 镜像） |
+
+应用内下载**只走 ModelScope（modelscope.cn）**，不直连 HuggingFace / GitHub；`hf-mirror.com` 本机实测会 308 到 HF，故未采用。失败提示中文并可重试。Mac 侧载：`./scripts/download-sensevoice.sh` · `./scripts/download-qwen.sh`。
 
 ## 已实现 vs 仍缺
 

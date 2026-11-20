@@ -89,13 +89,13 @@ struct SettingsView: View {
         } header: {
             Text("模型")
         } footer: {
-            Text("转写与整理模型按需下载，串行加载、不同时常驻。可在飞行模式下使用已下载模型。")
+            Text("转写与整理均从 ModelScope（modelscope.cn）下载。失败可点「下载」重试；也可用 scripts/download-*.sh 侧载。已下载模型可在飞行模式下使用。")
         }
     }
 
     private var aboutSection: some View {
         Section("关于") {
-            LabeledContent("版本", value: "0.1.2-mvp")
+            LabeledContent("版本", value: "0.1.4-mvp")
             LabeledContent("转写", value: "SenseVoice · sherpa-onnx")
             LabeledContent("整理", value: "Qwen 0.5B · MLX")
         }
@@ -210,14 +210,9 @@ struct SettingsView: View {
     }
 
     private func friendlyDownloadError(_ error: Error) -> String {
-        let raw = error.localizedDescription
-        if raw.localizedCaseInsensitiveContains("offline")
-            || raw.localizedCaseInsensitiveContains("network")
-            || raw.localizedCaseInsensitiveContains("Internet")
-            || raw.localizedCaseInsensitiveContains("连接")
-        {
-            return "当前无网络，无法下载模型。关闭飞行模式或连上 Wi‑Fi 后再试；已下载的模型仍可离线使用。"
+        if let localized = (error as? LocalizedError)?.errorDescription, !localized.isEmpty {
+            return localized
         }
-        return raw
+        return ModelDownloadSupport.localizedNetworkError(error)
     }
 }

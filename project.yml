@@ -37,7 +37,8 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: YES
         SWIFT_STRICT_CONCURRENCY: complete
-        OTHER_LDFLAGS: "$(inherited) -lc++"
+        OTHER_LDFLAGS: "$(inherited) -lc++ -lbz2"
+        SWIFT_OBJC_BRIDGING_HEADER: VoiceNotes/VoiceNotes-Bridging-Header.h
     dependencies:
       - package: sherpa-onnx
         product: sherpa-onnx
