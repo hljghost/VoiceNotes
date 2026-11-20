@@ -12,6 +12,8 @@ final class ModelStore {
         let expectedRelativePath: String
         var isDownloaded: Bool
         var bytesOnDisk: Int64
+        /// Extra status line for Settings (e.g. heuristic fallback note).
+        var detail: String?
 
         enum Kind: String, Sendable {
             case asr
@@ -40,85 +42,67 @@ final class ModelStore {
 
     var isDownloading: Bool { downloadingModelID != nil }
 
+    var qwenReady: Bool {
+        QwenModelCatalog.isReady(
+            at: llmDirectory.appendingPathComponent(QwenModelCatalog.modelID)
+        )
+    }
+
     func refresh() {
+        let qwenPath = llmDirectory.appendingPathComponent(QwenModelCatalog.modelID)
+        let qwenReady = QwenModelCatalog.isReady(at: qwenPath)
         models = [
             makeInfo(
                 id: SenseVoiceModelCatalog.modelID,
                 kind: .asr,
                 displayName: "SenseVoice Small int8（sherpa-onnx）",
-                directory: asrDirectory
+                directory: asrDirectory,
+                readyCheck: { SenseVoiceModelLayout.isReady(at: $0) },
+                detail: nil
             ),
             makeInfo(
-                id: OnDeviceEnricher.defaultModelID,
+                id: QwenModelCatalog.modelID,
                 kind: .llm,
-                displayName: "Qwen 0.5B（MLX）",
-                directory: llmDirectory
+                displayName: QwenModelCatalog.displayName,
+                directory: llmDirectory,
+                readyCheck: { QwenModelCatalog.isReady(at: $0) },
+                detail: qwenReady
+                    ? "整理：MLX 端侧推理"
+                    : "未下载时整理走启发式降级（非 LLM）"
             ),
         ]
     }
 
     func download(modelID: String) async throws {
-        guard modelID == SenseVoiceModelCatalog.modelID else {
-            throw ModelStoreError.notImplemented(modelID)
-        }
-        guard !isDownloading else {
-            throw ModelStoreError.alreadyDownloading
-        }
+        guard !isDownloading else { throw ModelStoreError.alreadyDownloading }
 
-        downloadingModelID = modelID
-        downloadProgress = 0
-        downloadStatusText = "准备下载…"
-        defer {
-            downloadingModelID = nil
-            downloadStatusText = nil
-            downloadProgress = 0
-            refresh()
-        }
-
-        let destination = asrDirectory.appendingPathComponent(modelID, isDirectory: true)
-        let tempRoot = asrDirectory.appendingPathComponent(".download-\(modelID)", isDirectory: true)
-        try? FileManager.default.removeItem(at: tempRoot)
-        try FileManager.default.createDirectory(at: tempRoot, withIntermediateDirectories: true)
-
-        do {
-            let totalExpected = SenseVoiceModelCatalog.files.reduce(Int64(0)) { $0 + $1.expectedBytes }
-            var completedBytes: Int64 = 0
-
-            for file in SenseVoiceModelCatalog.files {
-                downloadStatusText = "下载 \(file.fileName)…"
-                let dest = tempRoot.appendingPathComponent(file.fileName)
-                try await downloadFile(
-                    from: file.remoteURL,
-                    to: dest,
-                    expectedBytes: file.expectedBytes
-                ) { fileReceived in
-                    let overall = Double(completedBytes + fileReceived) / Double(totalExpected)
-                    Task { @MainActor in
-                        self.downloadProgress = min(max(overall, 0), 1)
-                    }
+        if modelID == SenseVoiceModelCatalog.modelID {
+            try await downloadBundle(
+                modelID: modelID,
+                root: asrDirectory,
+                files: SenseVoiceModelCatalog.files.map {
+                    ($0.fileName, $0.remoteURL, $0.expectedBytes)
                 }
-                let size = SenseVoiceModelLayout.fileSize(dest) ?? 0
-                // Exact-size check with small tolerance (mirrors / CDN variance).
-                let tolerance: Int64 = 256 * 1024
-                guard abs(size - file.expectedBytes) <= tolerance else {
-                    throw ModelStoreError.checksumFailed(
-                        "\(file.fileName) size=\(size) expected≈\(file.expectedBytes)"
-                    )
-                }
-                completedBytes += file.expectedBytes
-                downloadProgress = Double(completedBytes) / Double(totalExpected)
-            }
-
-            if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
-            }
-            try FileManager.default.moveItem(at: tempRoot, to: destination)
-            downloadStatusText = "完成"
-            downloadProgress = 1
-        } catch {
-            try? FileManager.default.removeItem(at: tempRoot)
-            throw error
+            )
+            return
         }
+
+        if modelID == QwenModelCatalog.modelID {
+            try await downloadBundle(
+                modelID: modelID,
+                root: llmDirectory,
+                files: QwenModelCatalog.files.map {
+                    ($0.fileName, QwenModelCatalog.remoteURL(for: $0.fileName), $0.expectedBytes)
+                },
+                // Tokenizer text files can vary slightly by mirror; weights stay strict.
+                sizeTolerance: { name in
+                    name.hasSuffix(".safetensors") ? 512 * 1024 : 2 * 1024 * 1024
+                }
+            )
+            return
+        }
+
+        throw ModelStoreError.notImplemented(modelID)
     }
 
     func cancelDownload() {
@@ -138,14 +122,79 @@ final class ModelStore {
         refresh()
     }
 
-    private func makeInfo(id: String, kind: ModelInfo.Kind, displayName: String, directory: URL) -> ModelInfo {
-        let path = directory.appendingPathComponent(id)
-        let exists: Bool
-        if kind == .asr, id == SenseVoiceModelCatalog.modelID {
-            exists = SenseVoiceModelLayout.isReady(at: path)
-        } else {
-            exists = FileManager.default.fileExists(atPath: path.path)
+    // MARK: - Private
+
+    private func downloadBundle(
+        modelID: String,
+        root: URL,
+        files: [(String, URL, Int64)],
+        sizeTolerance: (String) -> Int64 = { _ in 256 * 1024 }
+    ) async throws {
+        downloadingModelID = modelID
+        downloadProgress = 0
+        downloadStatusText = "准备下载…"
+        defer {
+            downloadingModelID = nil
+            downloadStatusText = nil
+            downloadProgress = 0
+            refresh()
         }
+
+        let destination = root.appendingPathComponent(modelID, isDirectory: true)
+        let tempRoot = root.appendingPathComponent(".download-\(modelID)", isDirectory: true)
+        try? FileManager.default.removeItem(at: tempRoot)
+        try FileManager.default.createDirectory(at: tempRoot, withIntermediateDirectories: true)
+
+        do {
+            let totalExpected = files.reduce(Int64(0)) { $0 + $1.2 }
+            var completedBytes: Int64 = 0
+
+            for (fileName, remoteURL, expectedBytes) in files {
+                downloadStatusText = "下载 \(fileName)…"
+                let dest = tempRoot.appendingPathComponent(fileName)
+                try await downloadFile(
+                    from: remoteURL,
+                    to: dest,
+                    expectedBytes: expectedBytes
+                ) { fileReceived in
+                    let overall = Double(completedBytes + fileReceived) / Double(max(totalExpected, 1))
+                    Task { @MainActor in
+                        self.downloadProgress = min(max(overall, 0), 1)
+                    }
+                }
+                let size = SenseVoiceModelLayout.fileSize(dest) ?? 0
+                let tolerance = sizeTolerance(fileName)
+                guard abs(size - expectedBytes) <= tolerance else {
+                    throw ModelStoreError.checksumFailed(
+                        "\(fileName) size=\(size) expected≈\(expectedBytes)"
+                    )
+                }
+                completedBytes += expectedBytes
+                downloadProgress = Double(completedBytes) / Double(max(totalExpected, 1))
+            }
+
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+            try FileManager.default.moveItem(at: tempRoot, to: destination)
+            downloadStatusText = "完成"
+            downloadProgress = 1
+        } catch {
+            try? FileManager.default.removeItem(at: tempRoot)
+            throw error
+        }
+    }
+
+    private func makeInfo(
+        id: String,
+        kind: ModelInfo.Kind,
+        displayName: String,
+        directory: URL,
+        readyCheck: (URL) -> Bool,
+        detail: String?
+    ) -> ModelInfo {
+        let path = directory.appendingPathComponent(id)
+        let exists = readyCheck(path)
         let bytes = exists ? (directorySize(path) ?? 0) : 0
         return ModelInfo(
             id: id,
@@ -153,7 +202,8 @@ final class ModelStore {
             displayName: displayName,
             expectedRelativePath: id,
             isDownloaded: exists,
-            bytesOnDisk: bytes
+            bytesOnDisk: bytes,
+            detail: detail
         )
     }
 

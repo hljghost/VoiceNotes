@@ -16,57 +16,23 @@ struct SettingsView: View {
 
             Section {
                 LabeledContent("增强引擎", value: "本机（MLX Qwen）")
-                Text("云端增强为后期扩展点，MVP 不可切换。")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                if modelStore.qwenReady {
+                    Text("已下载 Qwen：真机端侧 MLX 推理；Simulator 因 Metal 限制自动启发式降级（llmModelID 带 -simulator-heuristic）。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("未下载 Qwen：整理自动启发式降级（规则摘要，非 LLM）。云端增强为后期扩展点，MVP 不可切换。")
+                        .font(.caption)
+                        .foregroundStyle(Color.orange)
+                }
             } header: {
                 Text("整理引擎")
             }
 
             Section {
-                ForEach(modelStore.models) { model in
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(model.displayName)
-                            Spacer()
-                            Text(model.isDownloaded ? "已下载" : "未下载")
-                                .font(.caption)
-                                .foregroundStyle(model.isDownloaded ? .green : .secondary)
-                        }
-                        Text(byteString(model.bytesOnDisk))
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-
-                        if modelStore.downloadingModelID == model.id {
-                            ProgressView(value: modelStore.downloadProgress)
-                            if let status = modelStore.downloadStatusText {
-                                Text(status)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-
-                        HStack {
-                            Button("下载") {
-                                Task {
-                                    downloadError = nil
-                                    do {
-                                        try await modelStore.download(modelID: model.id)
-                                    } catch {
-                                        downloadError = error.localizedDescription
-                                    }
-                                }
-                            }
-                            .disabled(model.isDownloaded || modelStore.isDownloading)
-
-                            Button("删除", role: .destructive) {
-                                try? modelStore.delete(modelID: model.id)
-                            }
-                            .disabled(!model.isDownloaded || modelStore.isDownloading)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .padding(.vertical, 4)
+                let models = modelStore.models
+                ForEach(models, id: \.id) { model in
+                    modelRow(model)
                 }
 
                 LabeledContent("总占用", value: byteString(modelStore.totalBytes))
@@ -76,10 +42,10 @@ struct SettingsView: View {
             } footer: {
                 Text(
                     """
-                    ASR：SenseVoice Small int8
-                    文件：model.int8.onnx（~228MB）+ tokens.txt
-                    在线源：HuggingFace csukuangfj/…-2024-07-17（与 GitHub asr-models 归档一致）
-                    手动：scripts/download-sensevoice.sh → Application Support/…/Models/ASR/sensevoice-small/
+                    ASR：SenseVoice Small int8 → Models/ASR/sensevoice-small/
+                    LLM：mlx-community/Qwen2.5-0.5B-Instruct-4bit → Models/LLM/qwen2.5-0.5b-instruct/
+                    手动：scripts/download-sensevoice.sh · scripts/download-qwen.sh
+                    ASR 与 LLM 串行加载，不同时常驻。
                     """
                 )
             }
@@ -93,12 +59,64 @@ struct SettingsView: View {
             }
 
             Section("关于") {
-                LabeledContent("版本", value: "0.1.0-mvp")
+                LabeledContent("版本", value: "0.1.1-mvp")
                 LabeledContent("ASR", value: "sherpa-onnx SenseVoice")
+                LabeledContent("LLM", value: "MLX Qwen 0.5B")
                 LabeledContent("工程", value: "VoiceNotes")
             }
         }
         .navigationTitle("设置")
+    }
+
+    @ViewBuilder
+    private func modelRow(_ model: ModelStore.ModelInfo) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(model.displayName)
+                Spacer()
+                Text(model.isDownloaded ? "已下载" : "未下载")
+                    .font(.caption)
+                    .foregroundStyle(model.isDownloaded ? .green : .secondary)
+            }
+            Text(byteString(model.bytesOnDisk))
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            if let detail = model.detail {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(model.isDownloaded ? Color.secondary : Color.orange)
+            }
+
+            if modelStore.downloadingModelID == model.id {
+                ProgressView(value: modelStore.downloadProgress)
+                if let status = modelStore.downloadStatusText {
+                    Text(status)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            HStack {
+                Button("下载") {
+                    Task {
+                        downloadError = nil
+                        do {
+                            try await modelStore.download(modelID: model.id)
+                        } catch {
+                            downloadError = error.localizedDescription
+                        }
+                    }
+                }
+                .disabled(model.isDownloaded || modelStore.isDownloading)
+
+                Button("删除", role: .destructive) {
+                    try? modelStore.delete(modelID: model.id)
+                }
+                .disabled(!model.isDownloaded || modelStore.isDownloading)
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(.vertical, 4)
     }
 
     private func byteString(_ bytes: Int64) -> String {

@@ -11,19 +11,15 @@ settings:
     SWIFT_VERSION: "5.10"
     TARGETED_DEVICE_FAMILY: "1"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: L2BPSFX5Y2
     CODE_SIGN_STYLE: Automatic
 packages:
   sherpa-onnx:
     url: https://github.com/k2-fsa/sherpa-onnx
     exactVersion: 2.0.2
-  # mlx-swift / mlx-swift-lm — enable when wiring OnDeviceEnricher
-  # mlx-swift:
-  #   url: https://github.com/ml-explore/mlx-swift
-  #   from: 0.33.0
-  # mlx-swift-lm:
-  #   url: https://github.com/ml-explore/mlx-swift-lm
-  #   from: 2.0.0
+  mlx-swift-lm:
+    url: https://github.com/ml-explore/mlx-swift-lm
+    exactVersion: 2.31.3
 targets:
   VoiceNotes:
     type: application
@@ -45,6 +41,10 @@ targets:
     dependencies:
       - package: sherpa-onnx
         product: sherpa-onnx
+      - package: mlx-swift-lm
+        product: MLXLLM
+      - package: mlx-swift-lm
+        product: MLXLMCommon
     scheme:
       testTargets: []
       gatherCoverageData: false

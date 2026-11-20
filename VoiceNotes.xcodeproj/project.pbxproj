@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		093F9DC5389302D7DACA1239 /* QwenModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AD0ACE5863D7DB23B30DF1 /* QwenModelCatalog.swift */; };
 		121E345E690CBB325C93C064 /* NoteStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDAA6CC63A67D0009F9299A /* NoteStatus.swift */; };
 		1391180A835EB2344AB7DB89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4BD15D443C2ABC571CF7E892 /* Assets.xcassets */; };
+		1B43F362E2E9D2D9D18119ED /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 1A55090962C2980DB70E682B /* MLXLMCommon */; };
 		25E88D43E059B774D2853833 /* SenseVoiceRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7176EC1975F007784C8DDFBF /* SenseVoiceRecognizer.swift */; };
+		2F31D06295D8D5A8BD9221C6 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 1D73706B063B65E868F24AAE /* MLXLLM */; };
 		2FB231474BA5D7454E2EFD05 /* AppPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38798BFD048D8941230EAA87 /* AppPaths.swift */; };
 		498F5E240AC68EA8B8A0EA91 /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E00F7DF337B76D5D889EC /* RecordView.swift */; };
 		66A085FC32CF939026B71FF6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3A20509E251AF922FA00B4 /* ContentView.swift */; };
@@ -49,6 +52,7 @@
 		7B829284D96C0A7CFE4FB230 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7C3A20509E251AF922FA00B4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		945A795B93566FBEAB585C19 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A0AD0ACE5863D7DB23B30DF1 /* QwenModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QwenModelCatalog.swift; sourceTree = "<group>"; };
 		AFA7B7EEAD2756F70A173A49 /* ASRFixtureRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRFixtureRunner.swift; sourceTree = "<group>"; };
 		B4817C62DD39E16C9C61B7FA /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		C39CE6B7191CDCBDAAC00408 /* Enricher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enricher.swift; sourceTree = "<group>"; };
@@ -65,6 +69,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A535BC8503C037A1DDEB2066 /* sherpa-onnx in Frameworks */,
+				2F31D06295D8D5A8BD9221C6 /* MLXLLM in Frameworks */,
+				1B43F362E2E9D2D9D18119ED /* MLXLMCommon in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */,
+				A0AD0ACE5863D7DB23B30DF1 /* QwenModelCatalog.swift */,
 				4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */,
 			);
 			path = ModelStore;
@@ -239,6 +246,8 @@
 			name = VoiceNotes;
 			packageProductDependencies = (
 				C843FCE2DB9E2A00BDF78E90 /* sherpa-onnx */,
+				1D73706B063B65E868F24AAE /* MLXLLM */,
+				1A55090962C2980DB70E682B /* MLXLMCommon */,
 			);
 			productName = VoiceNotes;
 			productReference = 07E893385CD0674B446CD913 /* VoiceNotes.app */;
@@ -254,7 +263,7 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					6234070C6E4926258461B945 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = L2BPSFX5Y2;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -269,6 +278,7 @@
 			mainGroup = BB2A8C670747A378888247FD;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				CDAB27E62B46C91EDAE28BC5 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
 				81C2E59FC2A5F948F193057F /* XCRemoteSwiftPackageReference "sherpa-onnx" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -312,6 +322,7 @@
 				121E345E690CBB325C93C064 /* NoteStatus.swift in Sources */,
 				B402FF5EF9293145F1AB4B94 /* NotesListView.swift in Sources */,
 				FB0C5391CC29C01522CC82E2 /* OnDeviceEnricher.swift in Sources */,
+				093F9DC5389302D7DACA1239 /* QwenModelCatalog.swift in Sources */,
 				498F5E240AC68EA8B8A0EA91 /* RecordView.swift in Sources */,
 				C38D349E66BD56E1639C9598 /* SenseVoiceModelCatalog.swift in Sources */,
 				25E88D43E059B774D2853833 /* SenseVoiceRecognizer.swift in Sources */,
@@ -360,7 +371,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = L2BPSFX5Y2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -447,7 +458,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = L2BPSFX5Y2;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -523,9 +534,27 @@
 				version = 2.0.2;
 			};
 		};
+		CDAB27E62B46C91EDAE28BC5 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift-lm";
+			requirement = {
+				kind = exactVersion;
+				version = 2.31.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1A55090962C2980DB70E682B /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDAB27E62B46C91EDAE28BC5 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLMCommon;
+		};
+		1D73706B063B65E868F24AAE /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDAB27E62B46C91EDAE28BC5 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLLM;
+		};
 		C843FCE2DB9E2A00BDF78E90 /* sherpa-onnx */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 81C2E59FC2A5F948F193057F /* XCRemoteSwiftPackageReference "sherpa-onnx" */;

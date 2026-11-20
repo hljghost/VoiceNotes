@@ -20,19 +20,31 @@ enum ASRFixtureRunner {
         struct Payload: Codable {
             var ok: Bool
             var transcript: String?
+            var title: String?
+            var summary: String?
+            var bullets: [String]?
+            var llmModelID: String?
             var noteID: String?
             var status: String?
-            var modelReady: Bool
+            var asrReady: Bool
+            var qwenReady: Bool
             var error: String?
-            var modelPath: String
+            var asrModelPath: String
+            var llmModelPath: String
             var fixturePath: String?
         }
 
-        let modelPath = AppPaths.asrModelsDirectory
+        let asrModelPath = AppPaths.asrModelsDirectory
             .appendingPathComponent(SenseVoiceRecognizer.defaultModelID)
             .path
-        let modelReady = SenseVoiceModelLayout.isReady(
+        let llmModelPath = AppPaths.llmModelsDirectory
+            .appendingPathComponent(OnDeviceEnricher.defaultModelID)
+            .path
+        let asrReady = SenseVoiceModelLayout.isReady(
             at: AppPaths.asrModelsDirectory.appendingPathComponent(SenseVoiceRecognizer.defaultModelID)
+        )
+        let qwenReady = QwenModelCatalog.isReady(
+            at: AppPaths.llmModelsDirectory.appendingPathComponent(OnDeviceEnricher.defaultModelID)
         )
 
         guard let fixture = fixtureCandidates.first(where: {
@@ -42,11 +54,17 @@ enum ASRFixtureRunner {
                 Payload(
                     ok: false,
                     transcript: nil,
+                    title: nil,
+                    summary: nil,
+                    bullets: nil,
+                    llmModelID: nil,
                     noteID: nil,
                     status: nil,
-                    modelReady: modelReady,
+                    asrReady: asrReady,
+                    qwenReady: qwenReady,
                     error: "fixture wav not found under Application Support/Fixtures or Audio",
-                    modelPath: modelPath,
+                    asrModelPath: asrModelPath,
+                    llmModelPath: llmModelPath,
                     fixturePath: nil
                 ),
                 to: resultURL
@@ -85,22 +103,22 @@ enum ASRFixtureRunner {
             let pipelineError = dependencies.notePipeline.lastError
 
             let hasText = !(transcript ?? "").isEmpty
-            // ASR success if we have transcript; enrich may still be heuristic/stub.
-            let asrOK = hasText && (
-                status == NoteStatus.ready.rawValue
-                    || status == NoteStatus.transcribed.rawValue
-                    || status == NoteStatus.failedEnrich.rawValue
-                    || status == NoteStatus.enriching.rawValue
-            )
+            let pipelineOK = hasText && status == NoteStatus.ready.rawValue
             write(
                 Payload(
-                    ok: asrOK,
+                    ok: pipelineOK,
                     transcript: transcript,
+                    title: refreshed?.title,
+                    summary: refreshed?.summary,
+                    bullets: refreshed?.bullets,
+                    llmModelID: refreshed?.llmModelID,
                     noteID: note.id.uuidString,
                     status: status,
-                    modelReady: modelReady,
-                    error: asrOK ? nil : pipelineError,
-                    modelPath: modelPath,
+                    asrReady: asrReady,
+                    qwenReady: qwenReady,
+                    error: pipelineOK ? nil : pipelineError,
+                    asrModelPath: asrModelPath,
+                    llmModelPath: llmModelPath,
                     fixturePath: fixture.path
                 ),
                 to: resultURL
@@ -111,11 +129,17 @@ enum ASRFixtureRunner {
                 Payload(
                     ok: false,
                     transcript: nil,
+                    title: nil,
+                    summary: nil,
+                    bullets: nil,
+                    llmModelID: nil,
                     noteID: nil,
                     status: nil,
-                    modelReady: modelReady,
+                    asrReady: asrReady,
+                    qwenReady: qwenReady,
                     error: error.localizedDescription,
-                    modelPath: modelPath,
+                    asrModelPath: asrModelPath,
+                    llmModelPath: llmModelPath,
                     fixturePath: fixture.path
                 ),
                 to: resultURL
