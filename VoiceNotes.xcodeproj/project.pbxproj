@@ -14,6 +14,7 @@
 		25E88D43E059B774D2853833 /* SenseVoiceRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7176EC1975F007784C8DDFBF /* SenseVoiceRecognizer.swift */; };
 		2F31D06295D8D5A8BD9221C6 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 1D73706B063B65E868F24AAE /* MLXLLM */; };
 		2FB231474BA5D7454E2EFD05 /* AppPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38798BFD048D8941230EAA87 /* AppPaths.swift */; };
+		30E905C2E15F0B5265D2ABCE /* NoteExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC58E15B58462034EA0D1B /* NoteExporter.swift */; };
 		498F5E240AC68EA8B8A0EA91 /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E00F7DF337B76D5D889EC /* RecordView.swift */; };
 		66A085FC32CF939026B71FF6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3A20509E251AF922FA00B4 /* ContentView.swift */; };
 		7593EE5DE8520571B4B1243F /* Enricher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39CE6B7191CDCBDAAC00408 /* Enricher.swift */; };
@@ -45,6 +46,7 @@
 		4023158738C088F21B48F160 /* NotePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotePipeline.swift; sourceTree = "<group>"; };
 		4252FEECE32C008B190160C7 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		42BE5FFE5E64647B6200C3A8 /* VoiceNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNotesApp.swift; sourceTree = "<group>"; };
+		47FC58E15B58462034EA0D1B /* NoteExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteExporter.swift; sourceTree = "<group>"; };
 		4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelStore.swift; sourceTree = "<group>"; };
 		4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseVoiceModelCatalog.swift; sourceTree = "<group>"; };
 		4BD15D443C2ABC571CF7E892 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 		8494CACB399A5705D4650F2D /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				47FC58E15B58462034EA0D1B /* NoteExporter.swift */,
 				1B14859D24ADE1E30B76634B /* VNTheme.swift */,
 			);
 			path = Shared;
@@ -329,6 +332,7 @@
 				B18FDE1080A2E39167BA268B /* ModelStore.swift in Sources */,
 				BBD8ED709674B3EB8D1D7C9B /* Note.swift in Sources */,
 				835C974E53CDDD8F05677C2B /* NoteDetailView.swift in Sources */,
+				30E905C2E15F0B5265D2ABCE /* NoteExporter.swift in Sources */,
 				86E0203153F8AD289E52A046 /* NotePipeline.swift in Sources */,
 				121E345E690CBB325C93C064 /* NoteStatus.swift in Sources */,
 				B402FF5EF9293145F1AB4B94 /* NotesListView.swift in Sources */,

@@ -13,6 +13,8 @@ struct NoteDetailView: View {
     @State private var didLoadTitle = false
     @State private var showDeleteConfirm = false
     @State private var deleteError: String?
+    @State private var exportPayload: NoteExportPayload?
+    @State private var exportError: String?
 
     init(noteID: UUID) {
         self.noteID = noteID
@@ -42,6 +44,7 @@ struct NoteDetailView: View {
                         transcriptBlock(note)
                         audioBlock(note)
                         metaBlock(note)
+                        exportBlock(note)
                         deleteBlock
                     }
                     .padding(.horizontal, 20)
@@ -58,6 +61,11 @@ struct NoteDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     if let note {
+                        Button {
+                            beginExport(note)
+                        } label: {
+                            Label("导出到备忘录…", systemImage: "square.and.arrow.up")
+                        }
                         if note.status.canRetryASR {
                             Button("重试转写") {
                                 Task { await pipeline.retryASR(noteID: note.id) }
@@ -83,7 +91,26 @@ struct NoteDetailView: View {
             if ProcessInfo.processInfo.arguments.contains("-ShowDeleteConfirm") {
                 showDeleteConfirm = true
             }
+            if ProcessInfo.processInfo.arguments.contains("-ShowExportSheet"),
+               let note,
+               exportPayload == nil {
+                beginExport(note)
+            }
             #endif
+        }
+        .sheet(item: $exportPayload) { payload in
+            ShareSheet(items: payload.items) {
+                exportPayload = nil
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .alert("导出失败", isPresented: Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(exportError ?? "")
         }
         .confirmationDialog(
             "删除这条速记？",
@@ -273,6 +300,33 @@ struct NoteDetailView: View {
         }
     }
 
+    private func exportBlock(_ note: Note) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VNSectionLabel(title: "导出")
+            Button {
+                beginExport(note)
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "square.and.arrow.up")
+                        .frame(width: 18)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("导出到备忘录…")
+                            .fontWeight(.semibold)
+                        Text("通过系统分享打开「备忘录」，需手动点选一次")
+                            .font(.caption)
+                            .foregroundStyle(VNTheme.hush)
+                    }
+                    Spacer()
+                }
+                .foregroundStyle(VNTheme.pine)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(VNTheme.pine.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     private var deleteBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
             VNSectionLabel(title: "危险操作")
@@ -294,6 +348,16 @@ struct NoteDetailView: View {
             .disabled(isBusy)
         }
         .padding(.bottom, 24)
+    }
+
+    private func beginExport(_ note: Note) {
+        do {
+            let fileURL = try NoteExporter.temporaryTextFile(for: note)
+            let text = NoteExporter.plainText(for: note)
+            exportPayload = NoteExportPayload(items: [fileURL, text])
+        } catch {
+            exportError = error.localizedDescription
+        }
     }
 
     private func metaRow(_ label: String, _ value: String) -> some View {

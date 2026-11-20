@@ -8,6 +8,8 @@ struct NotesListView: View {
     @State private var searchText = ""
     @State private var pendingDelete: Note?
     @State private var deleteError: String?
+    @State private var exportPayload: NoteExportPayload?
+    @State private var exportError: String?
 
     private var filtered: [Note] {
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -35,6 +37,13 @@ struct NotesListView: View {
                         .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                         .listRowSeparatorTint(Color.primary.opacity(0.08))
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button {
+                                beginExport(note)
+                            } label: {
+                                Label("导出", systemImage: "square.and.arrow.up")
+                            }
+                            .tint(VNTheme.pine)
+
                             Button(role: .destructive) {
                                 pendingDelete = note
                             } label: {
@@ -59,6 +68,11 @@ struct NotesListView: View {
             if let id = NoteDeleteDebugHook.pendingDeleteID {
                 player.stop()
                 try? pipeline.deleteNote(noteID: id)
+            }
+            if ProcessInfo.processInfo.arguments.contains("-ShowExportSheet"),
+               exportPayload == nil,
+               let first = filtered.first {
+                beginExport(first)
             }
             #endif
         }
@@ -87,6 +101,20 @@ struct NotesListView: View {
         } message: {
             Text(deleteError ?? "")
         }
+        .sheet(item: $exportPayload) { payload in
+            ShareSheet(items: payload.items) {
+                exportPayload = nil
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .alert("导出失败", isPresented: Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(exportError ?? "")
+        }
     }
 
     private var emptyState: some View {
@@ -109,6 +137,16 @@ struct NotesListView: View {
             try pipeline.deleteNote(noteID: note.id)
         } catch {
             deleteError = error.localizedDescription
+        }
+    }
+
+    private func beginExport(_ note: Note) {
+        do {
+            let fileURL = try NoteExporter.temporaryTextFile(for: note)
+            let text = NoteExporter.plainText(for: note)
+            exportPayload = NoteExportPayload(items: [fileURL, text])
+        } catch {
+            exportError = error.localizedDescription
         }
     }
 }
