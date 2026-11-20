@@ -89,7 +89,7 @@ struct SettingsView: View {
         } header: {
             Text("模型")
         } footer: {
-            Text("转写与整理均从 ModelScope（modelscope.cn）下载。失败可点「下载」重试；也可用 scripts/download-*.sh 侧载。已下载模型可在飞行模式下使用。")
+            Text("转写与整理均从 ModelScope（modelscope.cn）下载。失败可点「下载」重试；")
         }
     }
 
