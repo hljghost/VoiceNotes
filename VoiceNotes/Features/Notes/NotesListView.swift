@@ -19,24 +19,37 @@ struct NotesListView: View {
     var body: some View {
         Group {
             if filtered.isEmpty {
-                ContentUnavailableView(
-                    searchText.isEmpty ? "还没有速记" : "无匹配结果",
-                    systemImage: searchText.isEmpty ? "mic" : "magnifyingglass",
-                    description: Text(searchText.isEmpty ? "在「录音」页说一句开始" : "换个关键词试试")
-                )
+                emptyState
             } else {
-                List(filtered) { note in
-                    NavigationLink {
-                        NoteDetailView(noteID: note.id)
-                    } label: {
-                        NoteRowView(note: note)
+                List {
+                    ForEach(filtered) { note in
+                        NavigationLink {
+                            NoteDetailView(noteID: note.id)
+                        } label: {
+                            NoteRowView(note: note)
+                        }
+                        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                        .listRowSeparatorTint(Color.primary.opacity(0.08))
                     }
                 }
                 .listStyle(.plain)
             }
         }
         .navigationTitle("笔记")
-        .searchable(text: $searchText, prompt: "搜索标题 / 摘要 / 原文")
+        .navigationBarTitleDisplayMode(.large)
+        .searchable(text: $searchText, prompt: "搜索标题、摘要或原文")
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(
+                searchText.isEmpty ? "还没有速记" : "没有匹配结果",
+                systemImage: searchText.isEmpty ? "waveform" : "magnifyingglass"
+            )
+        } description: {
+            Text(searchText.isEmpty ? "到「录音」说一句，转写与整理会自动完成。" : "换个关键词，或清空搜索看看全部笔记。")
+        }
+        .foregroundStyle(VNTheme.mist)
     }
 }
 
@@ -44,44 +57,60 @@ private struct NoteRowView: View {
     let note: Note
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(note.displayTitle)
-                    .font(.headline)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(VNTheme.ink)
                     .lineLimit(1)
-                Spacer()
-                Text(note.status.displayName)
-                    .font(.caption2)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(statusColor.opacity(0.15), in: Capsule())
-                    .foregroundStyle(statusColor)
+                Spacer(minLength: 8)
+                StatusBadge(status: note.status)
             }
-            if let summary = note.summary, !summary.isEmpty {
-                Text(summary)
+
+            if let preview = previewText {
+                Text(preview)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            } else if let raw = note.transcriptRaw, !raw.isEmpty {
-                Text(raw)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(VNTheme.mist)
                     .lineLimit(2)
             }
-            Text(note.createdAt.formatted(date: .abbreviated, time: .shortened))
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+
+            HStack(spacing: 8) {
+                Text(note.createdAt.formatted(date: .abbreviated, time: .shortened))
+                if note.durationMs > 0 {
+                    Text("·")
+                    Text(durationLabel)
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(VNTheme.hush)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 
-    private var statusColor: Color {
-        switch note.status {
-        case .ready: return .green
-        case .failedASR, .failedEnrich: return .red
-        case .transcribing, .enriching: return .orange
-        default: return .secondary
+    private var previewText: String? {
+        if let summary = note.summary, !summary.isEmpty, summary != note.displayTitle {
+            return summary
         }
+        if let raw = note.transcriptRaw, !raw.isEmpty {
+            return raw
+        }
+        if note.status.isProcessing {
+            return "正在处理这段录音…"
+        }
+        if note.status == .failedASR {
+            return "转写失败，可打开详情重试"
+        }
+        if note.status == .failedEnrich {
+            return "整理失败，原文仍保留"
+        }
+        return nil
+    }
+
+    private var durationLabel: String {
+        let seconds = max(note.durationMs / 1000, 1)
+        if seconds < 60 { return "\(seconds) 秒" }
+        return String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 }
 

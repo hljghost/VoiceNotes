@@ -8,6 +8,7 @@ enum AppTab: Hashable {
 
 struct ContentView: View {
     @State private var tab: AppTab = Self.initialTab()
+    @State private var openedNoteID: UUID? = Self.initialNoteID()
 
     var body: some View {
         TabView(selection: $tab) {
@@ -15,15 +16,18 @@ struct ContentView: View {
                 RecordView()
             }
             .tabItem {
-                Label("录音", systemImage: "mic.circle.fill")
+                Label("录音", systemImage: "mic.fill")
             }
             .tag(AppTab.record)
 
             NavigationStack {
                 NotesListView()
+                    .navigationDestination(item: $openedNoteID) { id in
+                        NoteDetailView(noteID: id)
+                    }
             }
             .tabItem {
-                Label("笔记", systemImage: "list.bullet.rectangle")
+                Label("笔记", systemImage: "square.and.pencil")
             }
             .tag(AppTab.notes)
 
@@ -31,14 +35,16 @@ struct ContentView: View {
                 SettingsView()
             }
             .tabItem {
-                Label("设置", systemImage: "gearshape")
+                Label("设置", systemImage: "gearshape.fill")
             }
             .tag(AppTab.settings)
         }
+        .tint(VNTheme.pine)
     }
 
     private static func initialTab() -> AppTab {
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-OpenNote") { return .notes }
         if let idx = args.firstIndex(of: "-OpenTab"), args.indices.contains(idx + 1) {
             switch args[idx + 1].lowercased() {
             case "notes": return .notes
@@ -48,6 +54,18 @@ struct ContentView: View {
         }
         return .record
     }
+
+    private static func initialNoteID() -> UUID? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let idx = args.firstIndex(of: "-OpenNote"),
+              args.indices.contains(idx + 1)
+        else { return nil }
+        return UUID(uuidString: args[idx + 1])
+    }
+}
+
+extension UUID: @retroactive Identifiable {
+    public var id: UUID { self }
 }
 
 #Preview {

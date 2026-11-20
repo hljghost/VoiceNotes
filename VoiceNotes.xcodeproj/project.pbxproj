@@ -29,6 +29,7 @@
 		BBD8ED709674B3EB8D1D7C9B /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4817C62DD39E16C9C61B7FA /* Note.swift */; };
 		C38D349E66BD56E1639C9598 /* SenseVoiceModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */; };
 		C439D6DC69B5BB062D5F4447 /* VoiceNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BE5FFE5E64647B6200C3A8 /* VoiceNotesApp.swift */; };
+		CB2628A911C44CCE4561C977 /* VNTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B14859D24ADE1E30B76634B /* VNTheme.swift */; };
 		D0D588C9EE3CEAD777BCADF1 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA414CE5039A52277C35B652 /* AppDependencies.swift */; };
 		E68C78023DF982C148DA9687 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51468B3AB7334D4456E471AA /* SpeechRecognizer.swift */; };
 		E84280065224690F23DA6528 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035CDFDA973CF976A9F1283A /* AudioPlayer.swift */; };
@@ -38,6 +39,7 @@
 /* Begin PBXFileReference section */
 		035CDFDA973CF976A9F1283A /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		07E893385CD0674B446CD913 /* VoiceNotes.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B14859D24ADE1E30B76634B /* VNTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VNTheme.swift; sourceTree = "<group>"; };
 		1C8E0F8ED1D3B9CCD40CFA31 /* OnDeviceEnricher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnDeviceEnricher.swift; sourceTree = "<group>"; };
 		38798BFD048D8941230EAA87 /* AppPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPaths.swift; sourceTree = "<group>"; };
 		4023158738C088F21B48F160 /* NotePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotePipeline.swift; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				DC65E083E81E2F9EE99E09B9 /* Notes */,
 				4C89A0BC2367444B6AC24605 /* Record */,
 				32D94A155D4A5C8FC34AD01B /* Settings */,
+				8494CACB399A5705D4650F2D /* Shared */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -148,6 +151,14 @@
 				42BE5FFE5E64647B6200C3A8 /* VoiceNotesApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		8494CACB399A5705D4650F2D /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				1B14859D24ADE1E30B76634B /* VNTheme.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		BB2A8C670747A378888247FD = {
@@ -328,6 +339,7 @@
 				25E88D43E059B774D2853833 /* SenseVoiceRecognizer.swift in Sources */,
 				AF1C7A11DA8BFE4ACCFD233B /* SettingsView.swift in Sources */,
 				E68C78023DF982C148DA9687 /* SpeechRecognizer.swift in Sources */,
+				CB2628A911C44CCE4561C977 /* VNTheme.swift in Sources */,
 				C439D6DC69B5BB062D5F4447 /* VoiceNotesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

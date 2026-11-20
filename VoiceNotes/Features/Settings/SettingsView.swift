@@ -6,120 +6,218 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            Section {
-                Text("数据仅存本机。MVP 禁止云端 LLM；音频与转写默认永不上传。")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            } header: {
-                Text("隐私")
-            }
-
-            Section {
-                LabeledContent("增强引擎", value: "本机（MLX Qwen）")
-                if modelStore.qwenReady {
-                    Text("已下载 Qwen：真机端侧 MLX 推理；Simulator 因 Metal 限制自动启发式降级（llmModelID 带 -simulator-heuristic）。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text("未下载 Qwen：整理自动启发式降级（规则摘要，非 LLM）。云端增强为后期扩展点，MVP 不可切换。")
-                        .font(.caption)
-                        .foregroundStyle(Color.orange)
-                }
-            } header: {
-                Text("整理引擎")
-            }
-
-            Section {
-                let models = modelStore.models
-                ForEach(models, id: \.id) { model in
-                    modelRow(model)
-                }
-
-                LabeledContent("总占用", value: byteString(modelStore.totalBytes))
-                Button("刷新占用") { modelStore.refresh() }
-            } header: {
-                Text("模型")
-            } footer: {
-                Text(
-                    """
-                    ASR：SenseVoice Small int8 → Models/ASR/sensevoice-small/
-                    LLM：mlx-community/Qwen2.5-0.5B-Instruct-4bit → Models/LLM/qwen2.5-0.5b-instruct/
-                    手动：scripts/download-sensevoice.sh · scripts/download-qwen.sh
-                    ASR 与 LLM 串行加载，不同时常驻。
-                    """
-                )
-            }
-
+            privacySection
+            engineSection
+            modelsSection
             if let downloadError {
                 Section {
                     Text(downloadError)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(VNTheme.danger)
                         .font(.footnote)
                 }
             }
-
-            Section("关于") {
-                LabeledContent("版本", value: "0.1.1-mvp")
-                LabeledContent("ASR", value: "sherpa-onnx SenseVoice")
-                LabeledContent("LLM", value: "MLX Qwen 0.5B")
-                LabeledContent("工程", value: "VoiceNotes")
-            }
+            aboutSection
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("设置")
+        .navigationBarTitleDisplayMode(.large)
     }
+
+    // MARK: - Sections
+
+    private var privacySection: some View {
+        Section {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.title3)
+                    .foregroundStyle(VNTheme.pine)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("数据只留在这台手机")
+                        .font(.subheadline.weight(.semibold))
+                    Text("MVP 禁止云端 LLM。音频、转写与整理结果默认永不上传。")
+                        .font(.footnote)
+                        .foregroundStyle(VNTheme.mist)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.vertical, 4)
+        } header: {
+            Text("隐私")
+        }
+    }
+
+    private var engineSection: some View {
+        Section {
+            LabeledContent("整理引擎") {
+                Text("本机 MLX Qwen")
+                    .foregroundStyle(VNTheme.ink)
+            }
+            if modelStore.qwenReady {
+                Text("Qwen 已就绪：真机走端侧 MLX；Simulator 因 Metal 限制会降级为启发式（模型 ID 带 -simulator-heuristic）。")
+                    .font(.caption)
+                    .foregroundStyle(VNTheme.mist)
+            } else {
+                Text("尚未下载 Qwen。整理会使用规则摘要（非 LLM），下载后即可端侧推理。")
+                    .font(.caption)
+                    .foregroundStyle(VNTheme.working)
+            }
+        } header: {
+            Text("整理引擎")
+        }
+    }
+
+    private var modelsSection: some View {
+        Section {
+            ForEach(modelStore.models, id: \.id) { model in
+                modelRow(model)
+            }
+
+            HStack {
+                Text("总占用")
+                Spacer()
+                Text(byteString(modelStore.totalBytes))
+                    .foregroundStyle(VNTheme.mist)
+                    .monospacedDigit()
+            }
+
+            Button {
+                modelStore.refresh()
+            } label: {
+                Label("刷新占用", systemImage: "arrow.clockwise")
+            }
+        } header: {
+            Text("模型")
+        } footer: {
+            Text("转写与整理模型按需下载，串行加载、不同时常驻。可在飞行模式下使用已下载模型。")
+        }
+    }
+
+    private var aboutSection: some View {
+        Section("关于") {
+            LabeledContent("版本", value: "0.1.2-mvp")
+            LabeledContent("转写", value: "SenseVoice · sherpa-onnx")
+            LabeledContent("整理", value: "Qwen 0.5B · MLX")
+        }
+    }
+
+    // MARK: - Model row
 
     @ViewBuilder
     private func modelRow(_ model: ModelStore.ModelInfo) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(model.displayName)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(kindLabel(model.kind))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(VNTheme.hush)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
+                    Text(shortName(model))
+                        .font(.subheadline.weight(.semibold))
+                }
                 Spacer()
                 Text(model.isDownloaded ? "已下载" : "未下载")
-                    .font(.caption)
-                    .foregroundStyle(model.isDownloaded ? .green : .secondary)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(model.isDownloaded ? VNTheme.ready : VNTheme.mist)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        (model.isDownloaded ? VNTheme.ready : VNTheme.mist).opacity(0.12),
+                        in: Capsule()
+                    )
             }
+
             Text(byteString(model.bytesOnDisk))
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(VNTheme.hush)
+                .monospacedDigit()
+
             if let detail = model.detail {
                 Text(detail)
-                    .font(.caption2)
-                    .foregroundStyle(model.isDownloaded ? Color.secondary : Color.orange)
+                    .font(.caption)
+                    .foregroundStyle(model.isDownloaded ? VNTheme.mist : VNTheme.working)
             }
 
             if modelStore.downloadingModelID == model.id {
-                ProgressView(value: modelStore.downloadProgress)
-                if let status = modelStore.downloadStatusText {
-                    Text(status)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            HStack {
-                Button("下载") {
-                    Task {
-                        downloadError = nil
-                        do {
-                            try await modelStore.download(modelID: model.id)
-                        } catch {
-                            downloadError = error.localizedDescription
-                        }
+                VStack(alignment: .leading, spacing: 6) {
+                    ProgressView(value: modelStore.downloadProgress)
+                        .tint(VNTheme.pine)
+                    HStack {
+                        Text(modelStore.downloadStatusText ?? "下载中…")
+                            .font(.caption)
+                            .foregroundStyle(VNTheme.mist)
+                            .lineLimit(1)
+                        Spacer()
+                        Text("\(Int((modelStore.downloadProgress * 100).rounded()))%")
+                            .font(.caption.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(VNTheme.pine)
                     }
+                    Button("取消下载", role: .destructive) {
+                        modelStore.cancelDownload()
+                    }
+                    .font(.caption)
                 }
-                .disabled(model.isDownloaded || modelStore.isDownloading)
-
-                Button("删除", role: .destructive) {
-                    try? modelStore.delete(modelID: model.id)
-                }
-                .disabled(!model.isDownloaded || modelStore.isDownloading)
+                .padding(.top, 2)
             }
-            .buttonStyle(.bordered)
+
+            if modelStore.downloadingModelID != model.id {
+                HStack(spacing: 10) {
+                    Button {
+                        Task {
+                            downloadError = nil
+                            do {
+                                try await modelStore.download(modelID: model.id)
+                            } catch {
+                                downloadError = friendlyDownloadError(error)
+                            }
+                        }
+                    } label: {
+                        Text(model.isDownloaded ? "重新下载" : "下载")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(VNTheme.pine)
+                    .disabled(model.isDownloaded || modelStore.isDownloading)
+
+                    Button("删除", role: .destructive) {
+                        try? modelStore.delete(modelID: model.id)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!model.isDownloaded || modelStore.isDownloading)
+                }
+            }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+    }
+
+    private func kindLabel(_ kind: ModelStore.ModelInfo.Kind) -> String {
+        switch kind {
+        case .asr: return "转写"
+        case .llm: return "整理"
+        }
+    }
+
+    private func shortName(_ model: ModelStore.ModelInfo) -> String {
+        switch model.kind {
+        case .asr: return "SenseVoice Small int8"
+        case .llm: return "Qwen2.5 0.5B Instruct"
+        }
     }
 
     private func byteString(_ bytes: Int64) -> String {
         ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+
+    private func friendlyDownloadError(_ error: Error) -> String {
+        let raw = error.localizedDescription
+        if raw.localizedCaseInsensitiveContains("offline")
+            || raw.localizedCaseInsensitiveContains("network")
+            || raw.localizedCaseInsensitiveContains("Internet")
+            || raw.localizedCaseInsensitiveContains("连接")
+        {
+            return "当前无网络，无法下载模型。关闭飞行模式或连上 Wi‑Fi 后再试；已下载的模型仍可离线使用。"
+        }
+        return raw
     }
 }
