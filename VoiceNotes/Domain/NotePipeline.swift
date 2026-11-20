@@ -79,6 +79,24 @@ final class NotePipeline {
         }
     }
 
+    // MARK: - Delete
+
+    /// Removes the SwiftData row and its local audio file (if any).
+    func deleteNote(noteID: UUID) throws {
+        guard let note = fetch(noteID) else { return }
+        if activeNoteID == noteID {
+            activeNoteID = nil
+        }
+        if let relative = note.audioRelativePath {
+            let url = audioDirectory.appendingPathComponent(relative)
+            if FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        modelContext.delete(note)
+        try modelContext.save()
+    }
+
     // MARK: - Steps
 
     private func transcribe(noteID: UUID) async throws {

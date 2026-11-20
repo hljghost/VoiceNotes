@@ -6,10 +6,13 @@ struct NoteDetailView: View {
 
     @Environment(NotePipeline.self) private var pipeline
     @Environment(AudioPlayer.self) private var player
+    @Environment(\.dismiss) private var dismiss
     @Query private var notes: [Note]
 
     @State private var editedTitle: String = ""
     @State private var didLoadTitle = false
+    @State private var showDeleteConfirm = false
+    @State private var deleteError: String?
 
     init(noteID: UUID) {
         self.noteID = noteID
@@ -39,6 +42,7 @@ struct NoteDetailView: View {
                         transcriptBlock(note)
                         audioBlock(note)
                         metaBlock(note)
+                        deleteBlock
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -51,9 +55,9 @@ struct NoteDetailView: View {
         .navigationTitle("详情")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if let note, note.status.canRetryASR || note.status.canRetryEnrich {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    if let note {
                         if note.status.canRetryASR {
                             Button("重试转写") {
                                 Task { await pipeline.retryASR(noteID: note.id) }
@@ -64,12 +68,42 @@ struct NoteDetailView: View {
                                 Task { await pipeline.retryEnrich(noteID: note.id) }
                             }
                         }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
                     }
-                    .disabled(isBusy)
+                    Button("删除速记", role: .destructive) {
+                        showDeleteConfirm = true
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
+                .disabled(isBusy && !showDeleteConfirm)
             }
+        }
+        .onAppear {
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-ShowDeleteConfirm") {
+                showDeleteConfirm = true
+            }
+            #endif
+        }
+        .confirmationDialog(
+            "删除这条速记？",
+            isPresented: $showDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("删除笔记与音频", role: .destructive) {
+                performDelete()
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("将同时删除本机录音文件，此操作不可撤销。")
+        }
+        .alert("删除失败", isPresented: Binding(
+            get: { deleteError != nil },
+            set: { if !$0 { deleteError = nil } }
+        )) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(deleteError ?? "")
         }
     }
 
@@ -237,6 +271,28 @@ struct NoteDetailView: View {
             metaRow("转写", note.asrModelID ?? "—")
             metaRow("整理", note.llmModelID ?? "—")
         }
+    }
+
+    private var deleteBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VNSectionLabel(title: "危险操作")
+            Button(role: .destructive) {
+                showDeleteConfirm = true
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("删除此速记")
+                        .fontWeight(.semibold)
+                    Spacer()
+                }
+                .foregroundStyle(VNTheme.danger)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(VNTheme.danger.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .disabled(isBusy)
+        }
         .padding(.bottom, 24)
     }
 
@@ -257,5 +313,15 @@ struct NoteDetailView: View {
     private func durationString(_ ms: Int) -> String {
         let seconds = max(ms / 1000, 0)
         return String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+
+    private func performDelete() {
+        player.stop()
+        do {
+            try pipeline.deleteNote(noteID: noteID)
+            dismiss()
+        } catch {
+            deleteError = error.localizedDescription
+        }
     }
 }

@@ -64,6 +64,18 @@ struct ContentView: View {
     }
 }
 
+#if DEBUG
+enum NoteDeleteDebugHook {
+    static var pendingDeleteID: UUID? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let idx = args.firstIndex(of: "-PerformDeleteNote"),
+              args.indices.contains(idx + 1)
+        else { return nil }
+        return UUID(uuidString: args[idx + 1])
+    }
+}
+#endif
+
 extension UUID: @retroactive Identifiable {
     public var id: UUID { self }
 }
