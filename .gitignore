@@ -1,0 +1,35 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+*.xcuserdata/
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SPM
+.swiftpm/
+Packages/
+Package.resolved
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# Models (large weights — download on device)
+Models/
+*.onnx
+*.mlmodel
+*.mlpackage
+*.safetensors
+*.gguf
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Secrets
+*.p12
+*.mobileprovision
+.env
+.env.*
