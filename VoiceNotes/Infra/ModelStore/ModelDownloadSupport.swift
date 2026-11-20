@@ -1,8 +1,9 @@
 import Foundation
 
-/// Shared download helpers: China-reachable mirrors, retries, friendlier network errors.
+/// Shared download helpers: ModelScope-first mirrors, friendlier network errors.
+/// 大陆策略：只走 modelscope.cn；不把 HuggingFace / GitHub / hf-mirror 当作下载源。
 enum ModelDownloadSupport {
-    /// Build candidate URL list. Never rely on HuggingFace / GitHub 直连 as the only path.
+    /// Build candidate URL list. Catalogs should already point at ModelScope.
     static func candidateURLs(from primary: URL) -> [URL] {
         var urls: [URL] = []
         let host = primary.host?.lowercased() ?? ""
@@ -12,24 +13,18 @@ enum ModelDownloadSupport {
             if let api = modelscopeAPIFallback(from: primary) {
                 urls.append(api)
             }
-        } else if host.contains("gh-proxy.com") || host.contains("ghproxy.net") || host.contains("ghproxy.com") || host.contains("ghfast.top") {
-            urls.append(primary)
-        } else if host.contains("github.com") || host.contains("githubusercontent.com") {
-            for proxy in githubProxyPrefixes {
-                if let wrapped = URL(string: proxy + primary.absoluteString) {
-                    urls.append(wrapped)
-                }
-            }
         } else if host == "huggingface.co" || host.hasSuffix(".huggingface.co") || host == "hf-mirror.com" {
+            // Rewrite to ModelScope when path looks like /{org}/{repo}/resolve/...
+            // Do not keep HF / hf-mirror as candidates (hf-mirror 本机实测 308→HF).
             if let ms = huggingfaceToModelScope(primary) {
                 urls.append(ms)
-            }
-            if var comps = URLComponents(url: primary, resolvingAgainstBaseURL: false) {
-                comps.host = "hf-mirror.com"
-                if let mirror = comps.url {
-                    urls.append(mirror)
+                if let api = modelscopeAPIFallback(from: ms) {
+                    urls.append(api)
                 }
             }
+        } else if host.contains("github.com") || host.contains("githubusercontent.com") {
+            // No GitHub direct / gh-proxy: SenseVoice already hosted on ModelScope.
+            // Leave empty so caller surfaces a clear Chinese error.
         } else {
             urls.append(primary)
         }
@@ -37,12 +32,6 @@ enum ModelDownloadSupport {
         var seen = Set<String>()
         return urls.filter { seen.insert($0.absoluteString).inserted }
     }
-
-    private static let githubProxyPrefixes = [
-        "https://gh-proxy.com/",
-        "https://ghproxy.net/",
-        "https://mirror.ghproxy.com/",
-    ]
 
     private static func modelscopeAPIFallback(from url: URL) -> URL? {
         let parts = url.path.split(separator: "/").map(String.init)
@@ -91,7 +80,7 @@ enum ModelDownloadSupport {
             case .timedOut:
                 return "下载超时。请换网络后点「下载」重试，或用 Mac 脚本 scripts/download-*.sh 侧载。"
             case .cannotFindHost, .dnsLookupFailed:
-                return "无法解析镜像服务器。请换 Wi‑Fi / 蜂窝后重试；仍失败可用脚本侧载。"
+                return "无法解析 ModelScope（modelscope.cn）。请换 Wi‑Fi / 蜂窝后重试；仍失败可用脚本侧载。"
             case .secureConnectionFailed, .serverCertificateUntrusted:
                 return "安全连接失败（证书/ATS）。请确认系统时间正确后重试。"
             case .cancelled:
