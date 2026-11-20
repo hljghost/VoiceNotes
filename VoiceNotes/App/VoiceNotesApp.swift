@@ -13,6 +13,9 @@ struct VoiceNotesApp: App {
                 .environment(dependencies.audioPlayer)
                 .environment(dependencies.modelStore)
                 .environment(\.appDependencies, dependencies)
+                .task {
+                    await ASRFixtureRunner.runIfRequested(dependencies: dependencies)
+                }
         }
         .modelContainer(dependencies.modelContainer)
     }
