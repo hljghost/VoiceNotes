@@ -29,27 +29,7 @@ struct NotesListView: View {
             } else {
                 List {
                     ForEach(filtered) { note in
-                        NavigationLink {
-                            NoteDetailView(noteID: note.id)
-                        } label: {
-                            NoteRowView(note: note)
-                        }
-                        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
-                        .listRowSeparatorTint(Color.primary.opacity(0.08))
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button {
-                                beginExport(note)
-                            } label: {
-                                Label("导出", systemImage: "square.and.arrow.up")
-                            }
-                            .tint(VNTheme.pine)
-
-                            Button(role: .destructive) {
-                                pendingDelete = note
-                            } label: {
-                                Label("删除", systemImage: "trash")
-                            }
-                        }
+                        noteListRow(note)
                     }
                 }
                 .listStyle(.plain)
@@ -114,6 +94,81 @@ struct NotesListView: View {
             Button("好", role: .cancel) {}
         } message: {
             Text(exportError ?? "")
+        }
+    }
+
+    /// DEBUG `-RevealSwipeDelete`: pin first row open so swipe chrome (incl. red delete) is screenshotable.
+    private var revealSwipeDelete: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-RevealSwipeDelete")
+        #else
+        false
+        #endif
+    }
+
+    @ViewBuilder
+    private func noteListRow(_ note: Note) -> some View {
+        let showRevealed = revealSwipeDelete && note.id == filtered.first?.id
+        if showRevealed {
+            ZStack(alignment: .trailing) {
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Button {
+                        beginExport(note)
+                    } label: {
+                        Label("导出", systemImage: "square.and.arrow.up")
+                            .labelStyle(.iconOnly)
+                            .frame(width: 72, height: 72)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+                    .background(VNTheme.pine)
+
+                    Button {
+                        pendingDelete = note
+                    } label: {
+                        Label("删除", systemImage: "trash")
+                            .labelStyle(.iconOnly)
+                            .frame(width: 72, height: 72)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+                    .background(Color.red)
+                }
+
+                NavigationLink {
+                    NoteDetailView(noteID: note.id)
+                } label: {
+                    NoteRowView(note: note)
+                }
+                .padding(.trailing, 144)
+            }
+            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 0))
+            .listRowSeparatorTint(Color.primary.opacity(0.08))
+        } else {
+            NavigationLink {
+                NoteDetailView(noteID: note.id)
+            } label: {
+                NoteRowView(note: note)
+            }
+            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            .listRowSeparatorTint(Color.primary.opacity(0.08))
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button {
+                    beginExport(note)
+                } label: {
+                    Label("导出", systemImage: "square.and.arrow.up")
+                }
+                .tint(VNTheme.pine)
+
+                Button(role: .destructive) {
+                    pendingDelete = note
+                } label: {
+                    Label("删除", systemImage: "trash")
+                }
+                // TabView `.tint(pine)` otherwise overrides destructive chrome.
+                .tint(Color.red)
+            }
         }
     }
 
