@@ -37,9 +37,19 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.tertiary)
 
+                        if modelStore.downloadingModelID == model.id {
+                            ProgressView(value: modelStore.downloadProgress)
+                            if let status = modelStore.downloadStatusText {
+                                Text(status)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
                         HStack {
                             Button("下载") {
                                 Task {
+                                    downloadError = nil
                                     do {
                                         try await modelStore.download(modelID: model.id)
                                     } catch {
@@ -47,12 +57,12 @@ struct SettingsView: View {
                                     }
                                 }
                             }
-                            .disabled(model.isDownloaded)
+                            .disabled(model.isDownloaded || modelStore.isDownloading)
 
                             Button("删除", role: .destructive) {
                                 try? modelStore.delete(modelID: model.id)
                             }
-                            .disabled(!model.isDownloaded)
+                            .disabled(!model.isDownloaded || modelStore.isDownloading)
                         }
                         .buttonStyle(.bordered)
                     }
@@ -64,7 +74,14 @@ struct SettingsView: View {
             } header: {
                 Text("模型")
             } footer: {
-                Text("ASR：sherpa-onnx SenseVoice · LLM：MLX Qwen 0.5B/0.6B。下载实现见 README。")
+                Text(
+                    """
+                    ASR：SenseVoice Small int8
+                    文件：model.int8.onnx（~228MB）+ tokens.txt
+                    在线源：HuggingFace csukuangfj/…-2024-07-17（与 GitHub asr-models 归档一致）
+                    手动：scripts/download-sensevoice.sh → Application Support/…/Models/ASR/sensevoice-small/
+                    """
+                )
             }
 
             if let downloadError {
@@ -77,6 +94,7 @@ struct SettingsView: View {
 
             Section("关于") {
                 LabeledContent("版本", value: "0.1.0-mvp")
+                LabeledContent("ASR", value: "sherpa-onnx SenseVoice")
                 LabeledContent("工程", value: "VoiceNotes")
             }
         }

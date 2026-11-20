@@ -17,10 +17,13 @@
 		835C974E53CDDD8F05677C2B /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D678318AF49D443026613A /* NoteDetailView.swift */; };
 		86E0203153F8AD289E52A046 /* NotePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4023158738C088F21B48F160 /* NotePipeline.swift */; };
 		92005625D8FC702BE76DA50F /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4252FEECE32C008B190160C7 /* AudioRecorder.swift */; };
+		A1E5B38BD586E1F12BF41B8C /* AudioSampleLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C82600F9F4ACC7ABAF6187B6 /* AudioSampleLoader.swift */; };
+		A535BC8503C037A1DDEB2066 /* sherpa-onnx in Frameworks */ = {isa = PBXBuildFile; productRef = C843FCE2DB9E2A00BDF78E90 /* sherpa-onnx */; };
 		AF1C7A11DA8BFE4ACCFD233B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B829284D96C0A7CFE4FB230 /* SettingsView.swift */; };
 		B18FDE1080A2E39167BA268B /* ModelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */; };
 		B402FF5EF9293145F1AB4B94 /* NotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DEB0BA3CEAD0355C00981B /* NotesListView.swift */; };
 		BBD8ED709674B3EB8D1D7C9B /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4817C62DD39E16C9C61B7FA /* Note.swift */; };
+		C38D349E66BD56E1639C9598 /* SenseVoiceModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */; };
 		C439D6DC69B5BB062D5F4447 /* VoiceNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BE5FFE5E64647B6200C3A8 /* VoiceNotesApp.swift */; };
 		D0D588C9EE3CEAD777BCADF1 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA414CE5039A52277C35B652 /* AppDependencies.swift */; };
 		E68C78023DF982C148DA9687 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51468B3AB7334D4456E471AA /* SpeechRecognizer.swift */; };
@@ -37,6 +40,7 @@
 		4252FEECE32C008B190160C7 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		42BE5FFE5E64647B6200C3A8 /* VoiceNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNotesApp.swift; sourceTree = "<group>"; };
 		4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelStore.swift; sourceTree = "<group>"; };
+		4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseVoiceModelCatalog.swift; sourceTree = "<group>"; };
 		4BD15D443C2ABC571CF7E892 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4EDAA6CC63A67D0009F9299A /* NoteStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStatus.swift; sourceTree = "<group>"; };
 		51468B3AB7334D4456E471AA /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
@@ -46,11 +50,23 @@
 		945A795B93566FBEAB585C19 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B4817C62DD39E16C9C61B7FA /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		C39CE6B7191CDCBDAAC00408 /* Enricher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enricher.swift; sourceTree = "<group>"; };
+		C82600F9F4ACC7ABAF6187B6 /* AudioSampleLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSampleLoader.swift; sourceTree = "<group>"; };
 		CA7E00F7DF337B76D5D889EC /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
 		F4D678318AF49D443026613A /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		F4DEB0BA3CEAD0355C00981B /* NotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListView.swift; sourceTree = "<group>"; };
 		FA414CE5039A52277C35B652 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		443687EE5EB307DB3702960C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A535BC8503C037A1DDEB2066 /* sherpa-onnx in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0E8141F320AA1F082AA94A1C /* VoiceNotes */ = {
@@ -137,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */,
+				4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */,
 			);
 			path = ModelStore;
 			sourceTree = "<group>";
@@ -163,6 +180,7 @@
 			children = (
 				035CDFDA973CF976A9F1283A /* AudioPlayer.swift */,
 				4252FEECE32C008B190160C7 /* AudioRecorder.swift */,
+				C82600F9F4ACC7ABAF6187B6 /* AudioSampleLoader.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -209,6 +227,7 @@
 			buildPhases = (
 				5A342295BA1AF47407B0C2A3 /* Sources */,
 				8CDA0FE88B66D77C990B88FA /* Resources */,
+				443687EE5EB307DB3702960C /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -216,6 +235,7 @@
 			);
 			name = VoiceNotes;
 			packageProductDependencies = (
+				C843FCE2DB9E2A00BDF78E90 /* sherpa-onnx */,
 			);
 			productName = VoiceNotes;
 			productReference = 07E893385CD0674B446CD913 /* VoiceNotes.app */;
@@ -245,6 +265,9 @@
 			);
 			mainGroup = BB2A8C670747A378888247FD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				81C2E59FC2A5F948F193057F /* XCRemoteSwiftPackageReference "sherpa-onnx" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 382D0E5896844F2A4D8E8280 /* Products */;
 			projectDirPath = "";
@@ -275,6 +298,7 @@
 				2FB231474BA5D7454E2EFD05 /* AppPaths.swift in Sources */,
 				E84280065224690F23DA6528 /* AudioPlayer.swift in Sources */,
 				92005625D8FC702BE76DA50F /* AudioRecorder.swift in Sources */,
+				A1E5B38BD586E1F12BF41B8C /* AudioSampleLoader.swift in Sources */,
 				66A085FC32CF939026B71FF6 /* ContentView.swift in Sources */,
 				7593EE5DE8520571B4B1243F /* Enricher.swift in Sources */,
 				B18FDE1080A2E39167BA268B /* ModelStore.swift in Sources */,
@@ -285,6 +309,7 @@
 				B402FF5EF9293145F1AB4B94 /* NotesListView.swift in Sources */,
 				FB0C5391CC29C01522CC82E2 /* OnDeviceEnricher.swift in Sources */,
 				498F5E240AC68EA8B8A0EA91 /* RecordView.swift in Sources */,
+				C38D349E66BD56E1639C9598 /* SenseVoiceModelCatalog.swift in Sources */,
 				25E88D43E059B774D2853833 /* SenseVoiceRecognizer.swift in Sources */,
 				AF1C7A11DA8BFE4ACCFD233B /* SettingsView.swift in Sources */,
 				E68C78023DF982C148DA9687 /* SpeechRecognizer.swift in Sources */,
@@ -374,6 +399,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "$(inherited) -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.voicenotes.app;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -453,6 +479,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "$(inherited) -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.voicenotes.app;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -482,6 +509,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		81C2E59FC2A5F948F193057F /* XCRemoteSwiftPackageReference "sherpa-onnx" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/k2-fsa/sherpa-onnx";
+			requirement = {
+				kind = exactVersion;
+				version = 2.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C843FCE2DB9E2A00BDF78E90 /* sherpa-onnx */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81C2E59FC2A5F948F193057F /* XCRemoteSwiftPackageReference "sherpa-onnx" */;
+			productName = "sherpa-onnx";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C3A872EF6933B6E9BB7F614F /* Project object */;
 }

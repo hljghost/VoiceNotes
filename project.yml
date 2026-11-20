@@ -13,18 +13,17 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
-packages: {}
-# --- Native deps (enable when ready to link; see README) ---
-# packages:
-#   sherpa-onnx:
-#     url: https://github.com/k2-fsa/sherpa-onnx
-#     from: 1.12.0
-#   mlx-swift:
-#     url: https://github.com/ml-explore/mlx-swift
-#     from: 0.33.0
-#   mlx-swift-lm:
-#     url: https://github.com/ml-explore/mlx-swift-lm
-#     from: 2.0.0
+packages:
+  sherpa-onnx:
+    url: https://github.com/k2-fsa/sherpa-onnx
+    exactVersion: 2.0.2
+  # mlx-swift / mlx-swift-lm — enable when wiring OnDeviceEnricher
+  # mlx-swift:
+  #   url: https://github.com/ml-explore/mlx-swift
+  #   from: 0.33.0
+  # mlx-swift-lm:
+  #   url: https://github.com/ml-explore/mlx-swift-lm
+  #   from: 2.0.0
 targets:
   VoiceNotes:
     type: application
@@ -42,7 +41,10 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: YES
         SWIFT_STRICT_CONCURRENCY: complete
-    # dependencies: []  # wire sherpa-onnx / MLXLLM here after packages enabled
+        OTHER_LDFLAGS: "$(inherited) -lc++"
+    dependencies:
+      - package: sherpa-onnx
+        product: sherpa-onnx
     scheme:
       testTargets: []
       gatherCoverageData: false

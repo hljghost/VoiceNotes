@@ -3,11 +3,16 @@ import SwiftUI
 struct RecordView: View {
     @Environment(AudioRecorder.self) private var recorder
     @Environment(NotePipeline.self) private var pipeline
+    @Environment(ModelStore.self) private var modelStore
     @Environment(\.modelContext) private var modelContext
 
     @State private var permissionDenied = false
     @State private var errorMessage: String?
     @State private var lastCreatedNoteID: UUID?
+
+    private var asrReady: Bool {
+        modelStore.models.first(where: { $0.id == SenseVoiceModelCatalog.modelID })?.isDownloaded == true
+    }
 
     var body: some View {
         VStack(spacing: 28) {
@@ -20,6 +25,14 @@ struct RecordView: View {
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
+
+            if !asrReady {
+                Text("请先到「设置」下载 SenseVoice 模型，再录中文短句。")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
 
             Button {
                 Task { await toggleRecording() }
