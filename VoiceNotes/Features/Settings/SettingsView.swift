@@ -46,7 +46,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("数据只留在这台手机")
                         .font(.subheadline.weight(.semibold))
-                    Text("MVP 禁止云端 LLM。音频、转写与整理结果默认永不上传。")
+                    Text("音频、转写与整理结果默认永不上传。")
                         .font(.footnote)
                         .foregroundStyle(VNTheme.mist)
                         .fixedSize(horizontal: false, vertical: true)
@@ -63,15 +63,6 @@ struct SettingsView: View {
             LabeledContent("整理引擎") {
                 Text("本机 MLX Qwen")
                     .foregroundStyle(VNTheme.ink)
-            }
-            if modelStore.qwenReady {
-                Text("Qwen 已就绪：真机走端侧 MLX；Simulator 因 Metal 限制会降级为启发式（模型 ID 带 -simulator-heuristic）。")
-                    .font(.caption)
-                    .foregroundStyle(VNTheme.mist)
-            } else {
-                Text("尚未下载 Qwen。整理会使用规则摘要（非 LLM），下载后即可端侧推理。")
-                    .font(.caption)
-                    .foregroundStyle(VNTheme.working)
             }
         } header: {
             Text("整理引擎")
