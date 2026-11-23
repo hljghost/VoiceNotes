@@ -2,28 +2,28 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(ModelStore.self) private var modelStore
-    @State private var downloadError: String?
+    @Environment(\.appDependencies) private var dependencies
+    @State private var pushManageModels = false
 
     var body: some View {
         ScrollViewReader { proxy in
             List {
                 privacySection
                 engineSection
-                modelsSection
-                if let downloadError {
-                    Section {
-                        Text(downloadError)
-                            .foregroundStyle(VNTheme.danger)
-                            .font(.footnote)
-                    }
-                }
+                manageModelsSection
                 aboutSection
                     .id("settings-about")
             }
             .listStyle(.insetGrouped)
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(isPresented: $pushManageModels) {
+                ManageModelsView()
+            }
             .onAppear {
+                modelStore.refresh()
+                healSelection()
+                openManageModelsIfRequested()
                 guard ProcessInfo.processInfo.arguments.contains("-ScrollSettingsFooter") else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                     withAnimation {
@@ -69,152 +69,86 @@ struct SettingsView: View {
         }
     }
 
-    private var modelsSection: some View {
+    private var manageModelsSection: some View {
         Section {
-            ForEach(modelStore.models, id: \.id) { model in
-                modelRow(model)
-            }
-
-            HStack {
-                Text("总占用")
-                Spacer()
-                Text(byteString(modelStore.totalBytes))
-                    .foregroundStyle(VNTheme.mist)
-                    .monospacedDigit()
-            }
-
-            Button {
-                modelStore.refresh()
+            NavigationLink {
+                ManageModelsView()
             } label: {
-                Label("刷新占用", systemImage: "arrow.clockwise")
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("管理模型")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(VNTheme.ink)
+                        Text(statusSummary)
+                            .font(.caption)
+                            .foregroundStyle(VNTheme.mist)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.vertical, 2)
             }
+            .accessibilityIdentifier("settings-manage-models")
         } header: {
             Text("模型")
         } footer: {
-            Text("转写与整理均从 ModelScope（modelscope.cn）下载。失败可点「下载」重试；")
+            Text("转写与整理均从 ModelScope（modelscope.cn）按需下载。")
         }
     }
 
     private var aboutSection: some View {
         Section("关于") {
-            LabeledContent("版本", value: "0.1.4-mvp")
+            LabeledContent("版本", value: "0.1.5-mvp")
             LabeledContent("转写", value: "SenseVoice · sherpa-onnx")
             LabeledContent("整理", value: "Qwen 0.5B · MLX")
         }
     }
 
-    // MARK: - Model row
+    // MARK: - Summary
 
-    @ViewBuilder
-    private func modelRow(_ model: ModelStore.ModelInfo) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(kindLabel(model.kind))
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(VNTheme.hush)
-                        .textCase(.uppercase)
-                        .tracking(0.5)
-                    Text(shortName(model))
-                        .font(.subheadline.weight(.semibold))
-                }
-                Spacer()
-                Text(model.isDownloaded ? "已下载" : "未下载")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(model.isDownloaded ? VNTheme.ready : VNTheme.mist)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(
-                        (model.isDownloaded ? VNTheme.ready : VNTheme.mist).opacity(0.12),
-                        in: Capsule()
-                    )
-            }
-
-            Text(byteString(model.bytesOnDisk))
-                .font(.caption)
-                .foregroundStyle(VNTheme.hush)
-                .monospacedDigit()
-
-            if let detail = model.detail {
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(model.isDownloaded ? VNTheme.mist : VNTheme.working)
-            }
-
-            if modelStore.downloadingModelID == model.id {
-                VStack(alignment: .leading, spacing: 6) {
-                    ProgressView(value: modelStore.downloadProgress)
-                        .tint(VNTheme.pine)
-                    HStack {
-                        Text(modelStore.downloadStatusText ?? "下载中…")
-                            .font(.caption)
-                            .foregroundStyle(VNTheme.mist)
-                            .lineLimit(1)
-                        Spacer()
-                        Text("\(Int((modelStore.downloadProgress * 100).rounded()))%")
-                            .font(.caption.monospacedDigit().weight(.semibold))
-                            .foregroundStyle(VNTheme.pine)
-                    }
-                    Button("取消下载", role: .destructive) {
-                        modelStore.cancelDownload()
-                    }
-                    .font(.caption)
-                }
-                .padding(.top, 2)
-            }
-
-            if modelStore.downloadingModelID != model.id {
-                HStack(spacing: 10) {
-                    Button {
-                        Task {
-                            downloadError = nil
-                            do {
-                                try await modelStore.download(modelID: model.id)
-                            } catch {
-                                downloadError = friendlyDownloadError(error)
-                            }
-                        }
-                    } label: {
-                        Text(model.isDownloaded ? "重新下载" : "下载")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(VNTheme.pine)
-                    .disabled(model.isDownloaded || modelStore.isDownloading)
-
-                    Button("删除", role: .destructive) {
-                        try? modelStore.delete(modelID: model.id)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(!model.isDownloaded || modelStore.isDownloading)
-                }
-            }
-        }
-        .padding(.vertical, 6)
+    private var statusSummary: String {
+        let asr = modelStore.models.first(where: { $0.kind == .asr })
+        let llm = modelStore.models.first(where: { $0.kind == .llm })
+        let prefs = dependencies?.modelPreferences
+        let asrLine = asrStatusLine(asr, active: prefs?.activeAsrModelId ?? "")
+        let llmLine = llmStatusLine(llm, active: prefs?.activeLlmModelId ?? "")
+        return "\(asrLine)\n\(llmLine)"
     }
 
-    private func kindLabel(_ kind: ModelStore.ModelInfo.Kind) -> String {
-        switch kind {
-        case .asr: return "转写"
-        case .llm: return "整理"
+    private func asrStatusLine(_ model: ModelStore.ModelInfo?, active: String) -> String {
+        guard let model else { return "SenseVoice · 未知" }
+        if model.isDownloaded, active == model.id || active.isEmpty {
+            return "SenseVoice · 已就绪"
         }
+        if model.isDownloaded {
+            return "SenseVoice · 已安装未选用"
+        }
+        return "SenseVoice · 未安装"
     }
 
-    private func shortName(_ model: ModelStore.ModelInfo) -> String {
-        switch model.kind {
-        case .asr: return "SenseVoice Small int8"
-        case .llm: return "Qwen2.5 0.5B Instruct"
+    private func llmStatusLine(_ model: ModelStore.ModelInfo?, active: String) -> String {
+        guard let model else { return "Qwen · 未知" }
+        if model.isDownloaded, active == model.id || active.isEmpty {
+            return "Qwen 0.5B · 已就绪"
         }
+        if model.isDownloaded {
+            return "Qwen 0.5B · 已安装未选用"
+        }
+        return "Qwen 0.5B · 未安装（启发式）"
     }
 
-    private func byteString(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    private func healSelection() {
+        guard let prefs = dependencies?.modelPreferences else { return }
+        let asrReady = modelStore.models.first(where: { $0.kind == .asr })?.isDownloaded == true
+        let llmReady = modelStore.models.first(where: { $0.kind == .llm })?.isDownloaded == true
+        prefs.healIfNeeded(asrReady: asrReady, llmReady: llmReady)
     }
 
-    private func friendlyDownloadError(_ error: Error) -> String {
-        if let localized = (error as? LocalizedError)?.errorDescription, !localized.isEmpty {
-            return localized
+    private func openManageModelsIfRequested() {
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-OpenManageModels") else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            pushManageModels = true
         }
-        return ModelDownloadSupport.localizedNetworkError(error)
     }
 }
