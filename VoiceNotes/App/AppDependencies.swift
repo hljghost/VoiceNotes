@@ -8,6 +8,7 @@ final class AppDependencies {
     let speechRecognizer: any SpeechRecognizer
     let enricher: any Enricher
     let modelStore: ModelStore
+    let modelPreferences: ModelPreferences
     let audioRecorder: AudioRecorder
     let audioPlayer: AudioPlayer
     let notePipeline: NotePipeline
@@ -26,12 +27,17 @@ final class AppDependencies {
         }
 
         let context = modelContainer.mainContext
+        let prefs = ModelPreferences()
         let recognizer = SenseVoiceRecognizer(modelDirectory: AppPaths.asrModelsDirectory)
-        let onDevice = OnDeviceEnricher(modelDirectory: AppPaths.llmModelsDirectory)
+        let onDevice = OnDeviceEnricher(
+            modelDirectory: AppPaths.llmModelsDirectory,
+            modelPreferences: prefs
+        )
 
         speechRecognizer = recognizer
         enricher = onDevice
         modelStore = ModelStore()
+        modelPreferences = prefs
         audioRecorder = AudioRecorder(audioDirectory: AppPaths.audioDirectory)
         audioPlayer = AudioPlayer()
         notePipeline = NotePipeline(
@@ -40,5 +46,13 @@ final class AppDependencies {
             modelContext: context,
             audioDirectory: AppPaths.audioDirectory
         )
+
+        let asrReady = SenseVoiceModelLayout.isReady(
+            at: AppPaths.asrModelsDirectory.appendingPathComponent(SenseVoiceModelCatalog.modelID)
+        )
+        let llmReady = QwenModelCatalog.isReady(
+            at: AppPaths.llmModelsDirectory.appendingPathComponent(QwenModelCatalog.modelID)
+        )
+        prefs.healIfNeeded(asrReady: asrReady, llmReady: llmReady)
     }
 }

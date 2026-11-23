@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		065201046041788EE5ED72CC /* ModelPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05DAE125BF09F0066EEC7F9 /* ModelPreferences.swift */; };
 		093F9DC5389302D7DACA1239 /* QwenModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AD0ACE5863D7DB23B30DF1 /* QwenModelCatalog.swift */; };
 		121E345E690CBB325C93C064 /* NoteStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDAA6CC63A67D0009F9299A /* NoteStatus.swift */; };
 		1391180A835EB2344AB7DB89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4BD15D443C2ABC571CF7E892 /* Assets.xcassets */; };
@@ -39,6 +40,7 @@
 		E68C78023DF982C148DA9687 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51468B3AB7334D4456E471AA /* SpeechRecognizer.swift */; };
 		E84280065224690F23DA6528 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035CDFDA973CF976A9F1283A /* AudioPlayer.swift */; };
 		E9869A1FABAA33E60A65E840 /* TarBz2Extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 386CAC826F5AE2209FADF67A /* TarBz2Extract.c */; };
+		F96EA68611BA232074A45EA6 /* ManageModelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBA23241CB3ADB42DF8F5D6 /* ManageModelsView.swift */; };
 		FB0C5391CC29C01522CC82E2 /* OnDeviceEnricher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C8E0F8ED1D3B9CCD40CFA31 /* OnDeviceEnricher.swift */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +62,7 @@
 		4EDAA6CC63A67D0009F9299A /* NoteStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStatus.swift; sourceTree = "<group>"; };
 		51468B3AB7334D4456E471AA /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		54A9D4754C3AAF681D833CAF /* FileChecksum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileChecksum.swift; sourceTree = "<group>"; };
+		6CBA23241CB3ADB42DF8F5D6 /* ManageModelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageModelsView.swift; sourceTree = "<group>"; };
 		7176EC1975F007784C8DDFBF /* SenseVoiceRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseVoiceRecognizer.swift; sourceTree = "<group>"; };
 		7AE0762EE9CF6A712FF39E28 /* VoiceNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VoiceNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		7B829284D96C0A7CFE4FB230 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -72,6 +75,7 @@
 		C39CE6B7191CDCBDAAC00408 /* Enricher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enricher.swift; sourceTree = "<group>"; };
 		C82600F9F4ACC7ABAF6187B6 /* AudioSampleLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSampleLoader.swift; sourceTree = "<group>"; };
 		CA7E00F7DF337B76D5D889EC /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
+		D05DAE125BF09F0066EEC7F9 /* ModelPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelPreferences.swift; sourceTree = "<group>"; };
 		D51338422C3E323F309C5DA9 /* TarBz2Extract.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TarBz2Extract.h; sourceTree = "<group>"; };
 		DEC73B0BACED5ACA175B6D35 /* TarBz2Extractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarBz2Extractor.swift; sourceTree = "<group>"; };
 		F4D678318AF49D443026613A /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
@@ -128,6 +132,7 @@
 		32D94A155D4A5C8FC34AD01B /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				6CBA23241CB3ADB42DF8F5D6 /* ManageModelsView.swift */,
 				7B829284D96C0A7CFE4FB230 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -191,6 +196,7 @@
 			children = (
 				54A9D4754C3AAF681D833CAF /* FileChecksum.swift */,
 				A08AB2D160DA35EB79629367 /* ModelDownloadSupport.swift */,
+				D05DAE125BF09F0066EEC7F9 /* ModelPreferences.swift */,
 				4A6F3BDC0422ABFB2E9DDC7F /* ModelStore.swift */,
 				A0AD0ACE5863D7DB23B30DF1 /* QwenModelCatalog.swift */,
 				4B4A3E4A44FCAF93EF008F25 /* SenseVoiceModelCatalog.swift */,
@@ -349,8 +355,10 @@
 				66A085FC32CF939026B71FF6 /* ContentView.swift in Sources */,
 				7593EE5DE8520571B4B1243F /* Enricher.swift in Sources */,
 				5489F9CC4DA6E2686459ED61 /* FileChecksum.swift in Sources */,
+				F96EA68611BA232074A45EA6 /* ManageModelsView.swift in Sources */,
 				DF92D75F89D81EAEADCDA24D /* ModelDownloadRunner.swift in Sources */,
 				44C16FAB3110824EFD7A4F40 /* ModelDownloadSupport.swift in Sources */,
+				065201046041788EE5ED72CC /* ModelPreferences.swift in Sources */,
 				B18FDE1080A2E39167BA268B /* ModelStore.swift in Sources */,
 				BBD8ED709674B3EB8D1D7C9B /* Note.swift in Sources */,
 				835C974E53CDDD8F05677C2B /* NoteDetailView.swift in Sources */,

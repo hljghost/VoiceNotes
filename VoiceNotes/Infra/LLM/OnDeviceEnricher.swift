@@ -16,29 +16,46 @@ actor OnDeviceEnricher: Enricher {
 
     let modelID: String
     private let modelDirectory: URL
+    /// Optional — when set, enricher only uses MLX if this model is「使用」active.
+    private let modelPreferences: ModelPreferences?
     private var container: ModelContainer?
 
     /// When true, missing weights (or Simulator Metal gaps) use heuristic instead of throwing.
     var allowHeuristicFallback: Bool = true
 
-    init(modelDirectory: URL, modelID: String = OnDeviceEnricher.defaultModelID) {
+    init(
+        modelDirectory: URL,
+        modelID: String = OnDeviceEnricher.defaultModelID,
+        modelPreferences: ModelPreferences? = nil
+    ) {
         self.modelDirectory = modelDirectory
         self.modelID = modelID
+        self.modelPreferences = modelPreferences
     }
 
     private var bundleDirectory: URL {
         modelDirectory.appendingPathComponent(modelID, isDirectory: true)
     }
 
+    private var isSelectedActive: Bool {
+        guard let prefs = modelPreferences else { return true }
+        let active = prefs.activeLlmModelId
+        // Empty → treat installed Qwen as active (auto-heal path).
+        return active.isEmpty || active == modelID
+    }
+
     var isModelReady: Bool {
-        get async { QwenModelCatalog.isReady(at: bundleDirectory) }
+        get async {
+            QwenModelCatalog.isReady(at: bundleDirectory) && isSelectedActive
+        }
     }
 
     func enrich(transcript: String) async throws -> Enrichment {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw EnricherError.emptyTranscript }
 
-        guard await isModelReady else {
+        let weightsReady = QwenModelCatalog.isReady(at: bundleDirectory)
+        guard weightsReady, isSelectedActive else {
             if allowHeuristicFallback {
                 return heuristicEnrichment(from: trimmed, suffix: Self.heuristicModelIDSuffix)
             }

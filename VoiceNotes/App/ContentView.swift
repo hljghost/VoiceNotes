@@ -45,6 +45,7 @@ struct ContentView: View {
     private static func initialTab() -> AppTab {
         let args = ProcessInfo.processInfo.arguments
         if args.contains("-OpenNote") { return .notes }
+        if args.contains("-OpenManageModels") { return .settings }
         if let idx = args.firstIndex(of: "-OpenTab"), args.indices.contains(idx + 1) {
             switch args[idx + 1].lowercased() {
             case "notes": return .notes
